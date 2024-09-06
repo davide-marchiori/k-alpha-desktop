@@ -1,22 +1,33 @@
 {
-  "name": "k-alpha-locale",
-  "version": "0.1.0",
+  "name": "k-alpha-desktop",
+  "version": "1.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && move out dist",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "tauri": "tauri"
   },
   "dependencies": {
-    "react": "^18",
-    "react-dom": "^18",
-    "next": "14.2.8"
+    "@headlessui/react": "^1.7.17",
+    "@heroicons/react": "^2.0.18",
+    "@tailwindcss/forms": "^0.5.4",
+    "@vercel/analytics": "^1.1.1",
+    "autoprefixer": "10.4.14",
+    "d3-array": "^3.2.4",
+    "next": "^14.2.5",
+    "papaparse": "^5.4.1",
+    "postcss": "^8.4.41",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-dropzone": "^14.2.3",
+    "react-papaparse": "^4.1.0",
+    "tailwindcss": "3.3.3"
   },
   "devDependencies": {
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.8"
+    "@tauri-apps/api": "^1.6.0",
+    "@tauri-apps/cli": "^1.6.1",
+    "eslint": "^9.9.1"
   }
 }
