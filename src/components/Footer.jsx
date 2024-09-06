@@ -21,7 +21,7 @@ export function Footer() {
           </a>
         </p>
         <p className="mb-2">
-          <strong>Source Code:</strong>{" "}
+          <strong>Source Code (online app):</strong>{" "}
           <a
             href="https://github.com/davide-marchiori/k-alpha"
             className="text-blue-600 hover:underline"
@@ -29,6 +29,17 @@ export function Footer() {
             rel="noopener noreferrer"
           >
             https://github.com/davide-marchiori/k-alpha
+          </a>
+        </p>
+        <p className="mb-2">
+          <strong>Source Code (desktop app):</strong>{" "}
+          <a
+            href="https://github.com/davide-marchiori/k-alpha-desktop"
+            className="text-blue-600 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            https://github.com/davide-marchiori/k-alpha-desktop
           </a>
         </p>
         <p>

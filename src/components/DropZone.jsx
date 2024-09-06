@@ -11,25 +11,6 @@ import Papa from "papaparse";
 
 const MAX_SIZE = 5 * 102400; // 500 KB
 
-const dropzoneStyles = {
-  baseStyle: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    padding: "20px",
-    borderWidth: 2,
-    borderRadius: 15,
-    borderColor: "#eeeeee",
-    borderStyle: "dashed",
-    backgroundColor: "#fafafa",
-    color: "#bdbdbd",
-    transition: "border .3s ease-in-out",
-  },
-  activeStyle: { borderColor: "#2196f3" },
-  acceptStyle: { borderColor: "#00e676" },
-  rejectStyle: { borderColor: "#ff1744" },
-};
-
 export function DropZone() {
   const [bucketSessionParams, sessionParamsDispatch] =
     useContext(SessionParamsContext);
@@ -187,13 +168,7 @@ export function DropZone() {
     reader.readAsText(file);
   }, [file, parseCSV, processData]);
 
-  const {
-    getRootProps,
-    getInputProps,
-    isDragActive,
-    isDragAccept,
-    isDragReject,
-  } = useDropzone({
+  const { getRootProps, getInputProps } = useDropzone({
     multiple: false,
     onDrop: processFile,
     accept: {
@@ -202,16 +177,6 @@ export function DropZone() {
     },
     maxSize: MAX_SIZE,
   });
-
-  const style = useMemo(
-    () => ({
-      ...dropzoneStyles.baseStyle,
-      ...(isDragActive ? dropzoneStyles.activeStyle : {}),
-      ...(isDragAccept ? dropzoneStyles.acceptStyle : {}),
-      ...(isDragReject ? dropzoneStyles.rejectStyle : {}),
-    }),
-    [isDragActive, isDragReject, isDragAccept]
-  );
 
   const renderFileInfo = () => (
     <div className="m-3">
@@ -250,17 +215,19 @@ export function DropZone() {
       <legend className="text-base">
         <b>Upload File</b>
       </legend>
-      <div className="m-3" {...getRootProps({ style })}>
-        <input {...getInputProps()} />
-        <div className="flex flex-col text-center text-gray-900 m-3">
-          {!isDragActive && "Click here to upload"}
-          {isDragActive && !isDragReject && "Drop it here"}
-          {isDragReject && "File type not accepted"}
-          <div>(Only *.csv will be accepted)</div>
-          <div>Check the 'Usage Notes' on how to prepare your datafile</div>
+      <div className="flex flex-col text-center text-gray-900 m-3">
+        <div {...getInputProps()}></div>
+        <div>
+          <button
+            className="mb-6 rounded-md bg-indigo-600 px-3.5 py-2.5 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            {...getRootProps()}
+          >
+            Upload file
+          </button>
         </div>
-      </div>
-      <div>
+        <div>Only *.csv will be accepted</div>
+        <div>Check the 'Usage Notes' on how to prepare your datafile</div>
+        <div></div>
         {isSuccess && sessionParams.data && sessionParams.data[0]
           ? renderFileInfo()
           : isVisible && <span style={{ color: "red" }}>{errors}</span>}

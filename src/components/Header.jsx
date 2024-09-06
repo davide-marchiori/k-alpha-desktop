@@ -7,7 +7,15 @@ export function Header({ title }) {
       <div className="container mx-auto">
         {/* Navbar */}
         <nav className="flex items-center justify-between p-4">
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="text-blue-600 hover:underline">
+            Calculator
+          </Link>
+          <Link
+            href="https://www.k-alpha.org/"
+            className="text-blue-600 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <Image
               src="../logo_small.png"
               alt="K-Alpha Logo"
