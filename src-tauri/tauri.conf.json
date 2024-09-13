@@ -34,6 +34,7 @@
       "identifier": "com.tauri.k-alpha-desktop",
       "longDescription": "",
       "macOS": {
+        "minimumSystemVersion": "10.13",
         "entitlements": null,
         "exceptionDomain": "",
         "frameworks": [],
@@ -42,7 +43,11 @@
       },
       "resources": [],
       "shortDescription": "",
-      "targets": "all",
+      "targets": [
+        "app",
+        "msi",
+        "nsis"
+      ],
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
