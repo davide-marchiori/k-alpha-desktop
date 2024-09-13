@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "rm -rf dist && next build && node move-dist.js",
+    "clean": "node clean-dist.js",
+    "build": "npm run clean && next build && node move-dist.js",
     "start": "next start",
     "lint": "next lint",
     "tauri": "tauri"

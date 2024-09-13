@@ -61,15 +61,24 @@ try {
     deleteFolderRecursive(destDir);
   }
 
-  // Copy 'out' directory to 'dist'
-  console.log('Copying "out" directory to "dist"');
-  copyFolderRecursiveSync(sourceDir, path.dirname(destDir));
+  // Copy contents of 'out' directory to 'dist'
+  console.log('Copying contents of "out" directory to "dist"');
+  fs.mkdirSync(destDir, { recursive: true });
+  const files = fs.readdirSync(sourceDir);
+  files.forEach(function (file) {
+    const curSource = path.join(sourceDir, file);
+    if (fs.lstatSync(curSource).isDirectory()) {
+      copyFolderRecursiveSync(curSource, destDir);
+    } else {
+      fs.copyFileSync(curSource, path.join(destDir, file));
+    }
+  });
 
   // Remove 'out' directory
   console.log('Removing "out" directory');
   deleteFolderRecursive(sourceDir);
 
-  console.log('Successfully moved "out" directory to "dist"');
+  console.log('Successfully moved contents of "out" directory to "dist"');
 } catch (error) {
   console.error("Error moving directory:", error);
   process.exit(1);
