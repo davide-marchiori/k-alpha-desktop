@@ -25,8 +25,17 @@ jobs:
           node-version: 20.10.0
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
+      - name: Navigate to Cargo.toml directory and list contents
+        run: |
+          cd src-tauri/target
+          echo "Current directory: $(pwd)"
+          ls -la
+          echo "Contents of Cargo.toml:"
+          cat Cargo.toml
       - name: Rust cache
         uses: swatinem/rust-cache@v2
+        with:
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
       - name: Install dependencies (Windows only)
         if: matrix.platform == 'windows-latest'
         run: |
@@ -35,15 +44,12 @@ jobs:
         run: |
           npm install
           npm run build
-      - uses: tauri-apps/tauri-action@v0
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: v__VERSION__
-          releaseName: "k-alpha-desktop v__VERSION__"
-          releaseBody: "See the assets to download this version."
-          releaseDraft: true
-          prerelease: false
+          tauriScript: npm run tauri -- build --config src-tauri/target/tauri.conf.json
       - name: Upload macOS .app artifact
         if: matrix.platform == 'macos-latest'
         uses: actions/upload-artifact@v4
