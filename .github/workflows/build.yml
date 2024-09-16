@@ -24,9 +24,9 @@ jobs:
         with:
           node-version: 20.10.0
       - name: Install Rust stable
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
       - name: Install dependencies (Windows only)
         if: matrix.platform == 'windows-latest'
         run: |
