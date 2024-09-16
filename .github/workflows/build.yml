@@ -44,12 +44,18 @@ jobs:
           releaseBody: "See the assets to download this version."
           releaseDraft: true
           prerelease: false
-      - name: Upload macOS artifact
+      - name: Upload macOS .app artifact
         if: matrix.platform == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
           name: k-alpha-desktop.app
           path: src-tauri/target/release/bundle/macos/k-alpha-desktop.app
+      - name: Upload macOS .dmg artifact
+        if: matrix.platform == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: k-alpha-desktop.dmg
+          path: src-tauri/target/release/bundle/dmg/k-alpha-desktop_*.dmg
       - name: Upload Windows artifact
         if: matrix.platform == 'windows-latest'
         uses: actions/upload-artifact@v4
