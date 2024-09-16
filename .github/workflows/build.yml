@@ -27,15 +27,22 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - name: Rust cache
         uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
       - name: Install dependencies (Windows only)
         if: matrix.platform == 'windows-latest'
         run: |
           rustup target add x86_64-pc-windows-msvc
+      - name: Install dependencies (macOS only)
+        if: matrix.platform == 'macos-latest'
+        run: |
+          rustup target add aarch64-apple-darwin
       - name: Install app dependencies and build web
         run: |
           npm install
           npm run build
-      - uses: tauri-apps/tauri-action@v0
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -44,21 +51,22 @@ jobs:
           releaseBody: "See the assets to download this version."
           releaseDraft: true
           prerelease: false
-      - name: Upload macOS .app artifact
+      - name: List target directory
+        run: |
+          ls -R src-tauri/target/release/bundle
+      - name: Upload macOS artifacts
         if: matrix.platform == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: k-alpha-desktop.app
-          path: src-tauri/target/release/bundle/macos/k-alpha-desktop.app
-      - name: Upload macOS .dmg artifact
-        if: matrix.platform == 'macos-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: k-alpha-desktop.dmg
-          path: src-tauri/target/release/bundle/dmg/k-alpha-desktop_*.dmg
+          name: macos-artifacts
+          path: |
+            src-tauri/target/release/bundle/macos/*.app
+            src-tauri/target/release/bundle/dmg/*.dmg
       - name: Upload Windows artifact
         if: matrix.platform == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: k-alpha-desktop.exe
-          path: src-tauri/target/release/k-alpha-desktop.exe
+          name: windows-artifacts
+          path: |
+            src-tauri/target/release/*.exe
+            src-tauri/target/release/bundle/msi/*.msi
