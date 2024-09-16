@@ -27,7 +27,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - name: Navigate to Cargo.toml directory and list contents
         run: |
-          cd src-tauri/target
+          cd src-tauri
           echo "Current directory: $(pwd)"
           ls -la
           echo "Contents of Cargo.toml:"
@@ -49,22 +49,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tauriScript: npm run tauri -- build --config src-tauri/target/tauri.conf.json
+          tauriScript: npm run tauri -- build --config src-tauri/tauri.conf.json
       - name: Upload macOS .app artifact
         if: matrix.platform == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
           name: k-alpha-desktop.app
-          path: src-tauri/target/release/bundle/macos/k-alpha-desktop.app
+          path: src-tauri/release/bundle/macos/k-alpha-desktop.app
       - name: Upload macOS .dmg artifact
         if: matrix.platform == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
           name: k-alpha-desktop.dmg
-          path: src-tauri/target/release/bundle/dmg/k-alpha-desktop_*.dmg
+          path: src-tauri/release/bundle/dmg/k-alpha-desktop_*.dmg
       - name: Upload Windows artifact
         if: matrix.platform == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
           name: k-alpha-desktop.exe
-          path: src-tauri/target/release/k-alpha-desktop.exe
+          path: src-tauri/release/k-alpha-desktop.exe
