@@ -32,6 +32,11 @@ jobs:
           ls -la
           echo "Contents of Cargo.toml:"
           cat Cargo.toml
+      - name: Navigate to Tauri directory
+        run: |
+          cd src-tauri
+          echo "Current directory: $(pwd)"
+          ls -la
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
@@ -40,31 +45,31 @@ jobs:
         if: matrix.platform == 'windows-latest'
         run: |
           rustup target add x86_64-pc-windows-msvc
-      - name: Install app dependencies and build web
-        run: |
-          npm install
-          npm run build
+          - name: Install app dependencies and build web
+          run: |
+            npm install
+            npm run build
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tauriScript: npm run tauri -- build --config src-tauri/tauri.conf.json
+          tauriScript: npm run tauri -- build --config src-tauri/target/tauri.conf.json
       - name: Upload macOS .app artifact
         if: matrix.platform == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
           name: k-alpha-desktop.app
-          path: src-tauri/release/bundle/macos/k-alpha-desktop.app
+          path: src-tauri/target/release/bundle/macos/k-alpha-desktop.app
       - name: Upload macOS .dmg artifact
         if: matrix.platform == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
           name: k-alpha-desktop.dmg
-          path: src-tauri/release/bundle/dmg/k-alpha-desktop_*.dmg
+          path: src-tauri/target/release/bundle/dmg/k-alpha-desktop_*.dmg
       - name: Upload Windows artifact
         if: matrix.platform == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
           name: k-alpha-desktop.exe
-          path: src-tauri/release/k-alpha-desktop.exe
+          path: src-tauri/target/release/k-alpha-desktop.exe
