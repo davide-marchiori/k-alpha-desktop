@@ -29,6 +29,8 @@ jobs:
         uses: swatinem/rust-cache@v2
         with:
           workspaces: "./src-tauri -> target"
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli
       - name: Install dependencies (Windows only)
         if: matrix.platform == 'windows-latest'
         run: |
@@ -44,7 +46,6 @@ jobs:
       - name: Build Tauri app (unsigned for macOS)
         if: matrix.platform == 'macos-latest'
         run: |
-          cd src-tauri
           cargo tauri build --target universal-apple-darwin
       - name: Build Tauri app (Windows)
         if: matrix.platform == 'windows-latest'
