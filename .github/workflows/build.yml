@@ -1,5 +1,4 @@
-name: "build-and-publish-tauri"
-
+name: "build-tauri"
 on:
   push:
     branches:
@@ -9,32 +8,35 @@ on:
       - main
 
 jobs:
-  publish-tauri:
+  build-tauri:
     permissions:
       contents: write
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: "macos-latest"
-            args: "--target aarch64-apple-darwin"
-          - platform: "macos-latest"
-            args: "--target x86_64-apple-darwin"
+        platform: [macos-latest, windows-latest]
+
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       - name: Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
           node-version: 20.10.0
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
           workspaces: "./src-tauri -> target"
+      - name: Install dependencies (Windows only)
+        if: matrix.platform == 'windows-latest'
+        run: |
+          rustup target add x86_64-pc-windows-msvc
+      - name: Install dependencies (macOS only)
+        if: matrix.platform == 'macos-latest'
+        run: |
+          rustup target add x86_64-apple-darwin
       - name: Install app dependencies and build web
         run: |
           npm install
@@ -49,19 +51,9 @@ jobs:
           releaseBody: "See the assets to download this version."
           releaseDraft: true
           prerelease: false
-          args: ${{ matrix.args }}
-      - name: List build directory (Windows)
-        if: matrix.platform == 'windows-latest'
+      - name: List target directory
         run: |
-          dir /s /b src-tauri\target\release\bundle
-      - name: Upload Windows artifacts
-        if: matrix.platform == 'windows-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-artifacts
-          path: |
-            src-tauri/target/release/bundle/msi/*.msi
-            src-tauri/target/release/bundle/nsis/*.exe
+          ls -R src-tauri/target/release/bundle
       - name: Upload macOS artifacts
         if: matrix.platform == 'macos-latest'
         uses: actions/upload-artifact@v4
@@ -70,3 +62,11 @@ jobs:
           path: |
             src-tauri/target/release/bundle/macos/*.app
             src-tauri/target/release/bundle/dmg/*.dmg
+      - name: Upload Windows artifact
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-artifacts
+          path: |
+            src-tauri/target/release/*.exe
+            src-tauri/target/release/bundle/msi/*.msi
