@@ -1,4 +1,5 @@
-name: "build-tauri"
+name: "build-and-publish-tauri"
+
 on:
   push:
     branches:
@@ -8,48 +9,39 @@ on:
       - main
 
 jobs:
-  build-tauri:
+  publish-tauri:
     permissions:
       contents: write
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-latest, windows-latest]
-
+        include:
+          - platform: "macos-latest"
+            args: "--target aarch64-apple-darwin"
+          - platform: "macos-latest"
+            args: "--target x86_64-apple-darwin"
+          - platform: "windows-latest"
+            args: ""
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20.10.0
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
           workspaces: "./src-tauri -> target"
-      - name: Install Tauri CLI
-        run: cargo install tauri-cli
-      - name: Install dependencies (Windows only)
-        if: matrix.platform == 'windows-latest'
-        run: |
-          rustup target add x86_64-pc-windows-msvc
-      - name: Install dependencies (macOS only)
-        if: matrix.platform == 'macos-latest'
-        run: |
-          rustup target add aarch64-apple-darwin
-          rustup target add x86_64-apple-darwin
       - name: Install app dependencies and build web
         run: |
           npm install
           npm run build
-      - name: Build Tauri app (unsigned for macOS)
-        if: matrix.platform == 'macos-latest'
-        run: |
-          cargo tauri build --target universal-apple-darwin
-      - name: Build Tauri app (Windows)
-        if: matrix.platform == 'windows-latest'
+      - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -59,33 +51,13 @@ jobs:
           releaseBody: "See the assets to download this version."
           releaseDraft: true
           prerelease: false
-      - name: List target directory
-        run: |
-          ls -R src-tauri/target/release/bundle
-      - name: Verify DMG creation (macOS only)
-        if: matrix.platform == 'macos-latest'
-        run: |
-          ls -l src-tauri/target/release/bundle/dmg/
-          file src-tauri/target/release/bundle/dmg/*.dmg
-          hdiutil verify src-tauri/target/release/bundle/dmg/*.dmg
-      - name: Debug app info (macOS only)
-        if: matrix.platform == 'macos-latest'
-        run: |
-          codesign -dv --verbose=4 src-tauri/target/release/bundle/macos/*.app
-          spctl -a -vv -t install src-tauri/target/release/bundle/macos/*.app
-      - name: Upload macOS artifacts
-        if: matrix.platform == 'macos-latest'
+          args: ${{ matrix.args }}
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: macos-artifacts
+          name: ${{ matrix.platform }}-artifacts
           path: |
             src-tauri/target/release/bundle/macos/*.app
             src-tauri/target/release/bundle/dmg/*.dmg
-      - name: Upload Windows artifact
-        if: matrix.platform == 'windows-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-artifacts
-          path: |
             src-tauri/target/release/*.exe
             src-tauri/target/release/bundle/msi/*.msi
